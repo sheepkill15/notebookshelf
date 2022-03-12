@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Notebookshelf</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="deleted">deleted</string>
+    <string name="title_placeholder">Title…</string>
+    <string name="content_placeholder">Content…</string>
+    <string name="save">Save</string>
+    <string name="exit">Exit</string>
+    <string name="successful_save">Saved successfully!</string>
+    <string name="save_the_current_opened_book">Save the current opened notebook</string>
+    <string name="title_cant_be_blank">Title can\'t be blank!</string>
+    <string name="new_book">New notebook</string>
+    <string name="exit_prompt">Are you sure?</string>
+    <string name="unsaved_changes">You have unsaved changes</string>
+    <string name="exit_without_save">Exit without saving</string>
+    <string name="save_and_exit">Save and exit</string>
+    <string name="cancel">Cancel</string>
+    <string name="choose_book_cover">Choose book cover</string>
+    <string name="undo">Undo</string>
+    <string name="add_image">Add image</string>
+    <string name="add_image_prompt">Select image</string>
+    <string name="show_titles">Show titles</string>
+    <string name="tutorial_addbook_title">Add new notebook</string>
+    <string name="tutorial_addbook_content">Pressing this button will add a new notebook to the first shelf. Clicking on a notebook will show a prompt to either edit or delete it.</string>
+    <string name="tutorial_add_shelf_content">Pressing this button will add a new shelf to the bookshelf. If you hold your finger on a notebook, you can drag it onto other shelfs.</string>
+</resources>

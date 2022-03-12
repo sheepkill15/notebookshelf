@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Notebookshelf</string>
+    <string name="edit">Módosítás</string>
+    <string name="delete">Törlés</string>
+    <string name="title_placeholder">Cím…</string>
+    <string name="content_placeholder">Tartalom…</string>
+    <string name="save">Mentés</string>
+    <string name="exit">Bezár</string>
+    <string name="successful_save">Sikeres mentés!</string>
+    <string name="save_the_current_opened_book">Jelenleg megnyitott füzet mentése</string>
+    <string name="title_cant_be_blank">A cím nem lehet üres!</string>
+    <string name="new_book">Új füzet</string>
+    <string name="exit_prompt">Biztos vagy benne?</string>
+    <string name="unsaved_changes">Vannak nem mentett változtatásaid</string>
+    <string name="exit_without_save">Kilépés mentés nélkül</string>
+    <string name="save_and_exit">Mentés és kilépés</string>
+    <string name="cancel">Mégse</string>
+    <string name="choose_book_cover">Könyv borító választása</string>
+    <string name="undo">Mégse</string>
+    <string name="deleted">törölve</string>
+    <string name="add_image">Kép hozzáadása</string>
+    <string name="add_image_prompt">Válaszd ki a képet</string>
+    <string name="show_titles">Címek mutatása</string>
+    <string name="tutorial_addbook_title">Új füzet hozzáadása</string>
+    <string name="tutorial_addbook_content">Ennek a gombnak a megnyomásával hozzáad egy új füzetet az első polchoz. A füzetre koppintva megjelenik egy ablak, amivel vagy szerkeszti vagy törli azt.</string>
+    <string name="tutorial_add_shelf_content">Ennek a gombnak a megnyomásával hozzáad egy új polcot. Ha nyomva tart egy füzetet, azt áthúzhatja más polcokra.</string>
+</resources>

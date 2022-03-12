@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/noteEditToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:minHeight="?attr/actionBarSize"
+        app:title="@string/app_name"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:menu="@menu/note_edit_appbar"
+        >
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/titleInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/title_placeholder"
+            android:inputType="textShortMessage|textAutoCorrect|textCapSentences|textAutoComplete"
+            android:singleLine="true"
+            android:textAlignment="center"
+            style="@style/TextAppearance.MyTheme.Headline1"
+            android:gravity="center_horizontal"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:nestedScrollingEnabled="false"
+        android:fillViewport="true">
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:outlineProvider="none"
+        app:boxBackgroundMode="none"
+        android:isScrollContainer="false"
+
+        >
+
+        <com.sanddunes.notebookshelf.views.LineTextInputEditText
+            android:id="@+id/contentInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autoLink="web|phone|map|email"
+            android:background="@android:color/transparent"
+            android:gravity="top"
+            android:hint="@string/content_placeholder"
+            android:inputType="textLongMessage|textAutoCorrect|textMultiLine|textCapSentences|textAutoComplete|textImeMultiLine"
+            style="@style/TextAppearance.MyTheme.Headline3"
+            android:isScrollContainer="false"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
+    </ScrollView>
+</LinearLayout>
