@@ -2,7 +2,6 @@ package com.sanddunes.notebookshelf.views
 
 import android.content.Context
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
@@ -14,17 +13,13 @@ import android.text.SpannableStringBuilder
 import android.util.AttributeSet
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
-import androidx.core.content.ContextCompat
 import androidx.core.text.getSpans
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.widget.doBeforeTextChanged
 import androidx.core.widget.doOnTextChanged
-import com.google.android.material.color.DynamicColors
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.textfield.TextInputEditText
 import com.sanddunes.notebookshelf.CenteredImageSpan
-import com.sanddunes.notebookshelf.R
 import com.sanddunes.notebookshelf.activities.EditBookActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

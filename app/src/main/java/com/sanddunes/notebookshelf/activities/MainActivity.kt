@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -26,14 +25,16 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import com.sanddunes.notebookshelf.*
+import com.sanddunes.notebookshelf.FileManager
+import com.sanddunes.notebookshelf.MyViewModel
+import com.sanddunes.notebookshelf.R
+import com.sanddunes.notebookshelf.ShelfAdapter
 import com.sanddunes.notebookshelf.drive.DriveHelper
 import com.sanddunes.notebookshelf.room.BookData
 import smartdevelop.ir.eram.showcaseviewlib.GuideView
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
@@ -91,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
         val notFirstOpen = prefs.getBoolean("com.sanddunes.notebookshelf.opened", false)
 
-        requestSignIn()
+//        requestSignIn()
         if(!notFirstOpen) {
             GuideView.Builder(this)
                 .setContentText(resources.getString(R.string.tutorial_addbook_content))

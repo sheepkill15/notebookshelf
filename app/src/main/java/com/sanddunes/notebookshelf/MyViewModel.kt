@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.sanddunes.notebookshelf.activities.EditBookActivity
-import com.sanddunes.notebookshelf.drive.DriveHelper
 import com.sanddunes.notebookshelf.room.BookDao
 import com.sanddunes.notebookshelf.room.BookData
 import com.sanddunes.notebookshelf.room.BookDatabase
@@ -29,7 +28,7 @@ class MyViewModel(private val myApplication: Application) : AndroidViewModel(myA
         viewModelScope.launch(Dispatchers.IO) {
             val id = bookDao.insert(book).toInt()
             callback?.let { it(id) }
-            DriveHelper.setSaveFiles()
+//            DriveHelper.setSaveFiles()
         }
     }
 
@@ -49,7 +48,7 @@ class MyViewModel(private val myApplication: Application) : AndroidViewModel(myA
                     it(data)
                 }
             }
-            DriveHelper.setSaveFiles()
+//            DriveHelper.setSaveFiles()
         }
     }
 
@@ -90,7 +89,7 @@ class MyViewModel(private val myApplication: Application) : AndroidViewModel(myA
             if (callback != null) {
                 callback()
             }
-            DriveHelper.setSaveFiles()
+//            DriveHelper.setSaveFiles()
         }
     }
 
@@ -141,7 +140,7 @@ class MyViewModel(private val myApplication: Application) : AndroidViewModel(myA
     fun removeShortcutOf(id: Int)
     {
         viewModelScope.launch {
-            val shortcutManager = getSystemService<ShortcutManager>(myApplication ,ShortcutManager::class.java)
+            val shortcutManager = getSystemService(myApplication ,ShortcutManager::class.java)
 
             val oldShorcuts = shortcutManager!!.dynamicShortcuts
 
