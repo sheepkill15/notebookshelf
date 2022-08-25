@@ -102,36 +102,26 @@ class MyViewModel(private val myApplication: Application) : AndroidViewModel(myA
     fun finishShortcutOf(data: BookData)
     {
         viewModelScope.launch(Dispatchers.IO) {
-            val shortcutManager = getSystemService<ShortcutManager>(
+
+            val shortcutManager = getSystemService(
                 myApplication,
                 ShortcutManager::class.java
             )
 
-            val shortcut = ShortcutInfo.Builder(
-                myApplication,
-                data.id.toString()
-            )
+            val shortcut = ShortcutInfo.Builder(myApplication, data.id.toString())
                 .setShortLabel(data.title)
                 .setLongLabel(data.title)
                 .setIcon(Icon.createWithResource(myApplication, R.drawable.ic_bookmark))
-                .setIntent(
-                    Intent(
-                        Intent.ACTION_MAIN,
-                        Uri.EMPTY,
-                        myApplication,
+                .setIntent(Intent(Intent.ACTION_MAIN, Uri.EMPTY, myApplication,
                         EditBookActivity::class.java
-                    ).putExtra(EditBookActivity.INTENT_BOOKID, data.id)
-                )
-                .build()
+                    ).putExtra(EditBookActivity.INTENT_BOOKID, data.id)).build()
 
             val oldShortcuts = shortcutManager!!.dynamicShortcuts
-
             val existsNewInOld = oldShortcuts.indexOfFirst { x -> x.id == shortcut.id }
             if (existsNewInOld != -1) {
                 oldShortcuts.removeAt(existsNewInOld)
             }
             oldShortcuts.add(shortcut)
-
             shortcutManager.dynamicShortcuts = oldShortcuts
         }
     }

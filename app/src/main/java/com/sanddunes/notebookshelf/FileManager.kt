@@ -25,6 +25,7 @@ class FileManager {
             var readData: ArrayList<ArrayList<Int>>
             try {
                 val ois = ObjectInputStream(fin)
+                @Suppress("UNCHECKED_CAST")
                 readData = ois.readObject() as ArrayList<ArrayList<Int>>
                 ois.close()
 
@@ -36,7 +37,8 @@ class FileManager {
             return readData
         }
 
-        fun saveToFile(path: String, data: ArrayList<ArrayList<Int>>) {
+        fun saveToFile(path: String,
+                       data: ArrayList<ArrayList<Int>>) {
             val file = File(path)
             createFileIfNotExist(file)
             val fos = FileOutputStream(file)

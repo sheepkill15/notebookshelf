@@ -1,7 +1,6 @@
 package com.sanddunes.notebookshelf.activities
 
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -15,32 +14,24 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.Scope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.json.gson.GsonFactory
-import com.google.api.services.drive.Drive
-import com.google.api.services.drive.DriveScopes
 import com.sanddunes.notebookshelf.FileManager
 import com.sanddunes.notebookshelf.MyViewModel
 import com.sanddunes.notebookshelf.R
 import com.sanddunes.notebookshelf.ShelfAdapter
-import com.sanddunes.notebookshelf.drive.DriveHelper
 import com.sanddunes.notebookshelf.room.BookData
 import smartdevelop.ir.eram.showcaseviewlib.GuideView
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
+
         lateinit var shelfLayout: ArrayList<ArrayList<Int>>
+
         lateinit var instance: MainActivity
         lateinit var viewModel: MyViewModel
         lateinit var formatter: SimpleDateFormat
@@ -78,21 +69,18 @@ class MainActivity : AppCompatActivity() {
         viewModel = MyViewModel(application)
 
         val dividerItemDecoration =
-            DividerItemDecoration(bookshelf.context, viewManager.orientation)
-
-        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(this, R.drawable.divider)!!)
-
-        bookshelf.addItemDecoration(dividerItemDecoration)
+            DividerItemDecoration(bookshelf.context, viewManager.orientation).apply {
+                setDrawable(ContextCompat.getDrawable(this@MainActivity, R.drawable.divider)!!)
+            }
 
         bookshelf.apply {
             layoutManager = viewManager
+            addItemDecoration(dividerItemDecoration)
         }
         loadBooksAndShelves()
+
         val prefs = getSharedPreferences("com.sanddunes.notebookshelf", Context.MODE_PRIVATE)
-
         val notFirstOpen = prefs.getBoolean("com.sanddunes.notebookshelf.opened", false)
-
-//        requestSignIn()
         if(!notFirstOpen) {
             GuideView.Builder(this)
                 .setContentText(resources.getString(R.string.tutorial_addbook_content))
@@ -111,53 +99,6 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().putBoolean("com.sanddunes.notebookshelf.opened", true).apply()
         }
 
-    }
-
-    private fun requestSignIn() {
-        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail()
-            .requestScopes(Scope(DriveScopes.DRIVE_APPDATA))
-            .build()
-        val client = GoogleSignIn.getClient(this, signInOptions)
-        startActivityForResult(client.signInIntent, 400)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when(requestCode) {
-            400 -> {
-                if(resultCode == RESULT_OK) {
-                    handleSignInIntent(data!!)
-                }
-            }
-        }
-    }
-
-    private fun handleSignInIntent(intent: Intent) {
-        GoogleSignIn.getSignedInAccountFromIntent(intent)
-            .addOnSuccessListener {
-                val credential = GoogleAccountCredential.usingOAuth2(this, Collections.singleton(DriveScopes.DRIVE_APPDATA))
-                credential.selectedAccount = it.account
-                val driveService = Drive.Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    GsonFactory(),
-                    credential
-                ).setApplicationName("Notebookshelf")
-                    .build()
-                DriveHelper.service = driveService
-                val prefs = getSharedPreferences("com.sanddunes.notebookshelf", Context.MODE_PRIVATE)
-                if(!prefs.getBoolean("com.sanddunes.notebookshelf.synced", false)) {
-                    val backgroundExecutor = Executors.newSingleThreadExecutor()
-                    backgroundExecutor.execute {
-                        DriveHelper.getSaveFiles()
-                        backgroundExecutor.shutdown()
-                    }
-                    prefs.edit().putBoolean("com.sanddunes.notebookshelf.synced", true).apply()
-                }
-
-            }
-            .addOnFailureListener {
-
-            }
     }
 
 
@@ -221,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                    )
                    bookshelf.adapter = newAdapter*/
 //                adapter.notifyDataSetChanged()
-                adapter.notifyItemChanged(0);
+                adapter.notifyItemChanged(0)
             }
         }
 

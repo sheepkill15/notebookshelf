@@ -11,9 +11,13 @@ import android.os.Looper
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.util.AttributeSet
+import android.util.Log
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.core.text.getSpans
+import androidx.core.view.ContentInfoCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.widget.doBeforeTextChanged
@@ -24,12 +28,13 @@ import com.sanddunes.notebookshelf.activities.EditBookActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.net.URL
 import kotlin.math.floor
 import kotlin.math.max
 
 class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextInputEditText(passedContext, attrs) {
 
-    private val mPaint: Paint = Paint()
+    private val mPaint: Paint = Paint().apply { color = Color.BLACK }
     private val mRect: Rect = Rect()
 
 
@@ -48,7 +53,7 @@ class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextI
             if(count > after)
             {
                 val spans = editableText.getSpans<CenteredImageSpan>(start + count, start + count)
-                if(spans.isNullOrEmpty()) return@doBeforeTextChanged
+                if(spans.isEmpty()) return@doBeforeTextChanged
 
                 for(i in spans.indices)
                 {
@@ -74,9 +79,8 @@ class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextI
     companion object {
         private const val maxImageSize: Int = 720
         fun getBitmap(uri: Uri):Bitmap? {
-
             try {
-                var input = EditBookActivity.instance.contentResolver.openInputStream(uri)
+                var input = if(!uri.scheme.equals("https")) EditBookActivity.instance.contentResolver.openInputStream(uri) else URL(uri.toString()).openStream()
 
                 val onlyBoundsOptions = BitmapFactory.Options()
                 onlyBoundsOptions.inJustDecodeBounds = true
@@ -94,7 +98,7 @@ class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextI
                 val bitmapOptions = BitmapFactory.Options()
                 bitmapOptions.inSampleSize = getPowerOfTwoForSampleRatio(ratio)
                 bitmapOptions.inPreferredConfig = Bitmap.Config.ARGB_8888
-                input = EditBookActivity.instance.contentResolver.openInputStream(uri)
+                input = if(!uri.scheme.equals("https")) EditBookActivity.instance.contentResolver.openInputStream(uri) else URL(uri.toString()).openStream()
 
                 val bitmap: Bitmap? = BitmapFactory.decodeStream(input, null, bitmapOptions)
 
@@ -103,6 +107,7 @@ class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextI
                 return bitmap
             }
             catch (e: Exception) {
+                Log.e("InsertImage", e.message.toString())
                 return null
             }
         }
@@ -119,6 +124,7 @@ class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextI
 
         val newLineHeight = lineHeight
         var count = height / newLineHeight
+
         when (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
             Configuration.UI_MODE_NIGHT_YES -> mPaint.color = Color.WHITE
             Configuration.UI_MODE_NIGHT_NO -> mPaint.color = Color.BLACK
@@ -130,7 +136,6 @@ class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextI
         }
 
         val r: Rect = mRect
-
         var baseline = getLineBounds(0, r)
         for(i in 0 until count)
         {
@@ -156,7 +161,8 @@ class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextI
             text?.insert(selectionCursor, "$stringToBeInserted ")
 
         val builder = SpannableStringBuilder(text)
-        builder.setSpan(CenteredImageSpan(drawable, stringToBeInserted), selectionCursor, selectionCursor + stringToBeInserted.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        builder.setSpan(CenteredImageSpan(drawable, stringToBeInserted), selectionCursor,
+            selectionCursor + stringToBeInserted.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         text = builder
         setSelection(selectionCursor + stringToBeInserted.length)
     }
@@ -166,33 +172,63 @@ class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextI
         if(ic == null) return ic
 
         EditorInfoCompat.setContentMimeTypes(outAttrs, arrayOf("image/*"))
-
-        val callback =
-            InputConnectionCompat.OnCommitContentListener { inputContentInfo, flags, _ ->
-                val lacksPermission = (flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && lacksPermission)
+        ViewCompat.setOnReceiveContentListener(this, arrayOf("image/*")) { _: View, inputContentInfo: ContentInfoCompat ->
+            Log.d("edittext", inputContentInfo.linkUri.toString())
+            val lacksPermission = (inputContentInfo.flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && lacksPermission)
+            {
+                try {
+                    EditBookActivity.instance.requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 10)
+//                    inputContentInfo.requestPermission()
+                } catch (e: Exception)
                 {
-                    try {
-                        inputContentInfo.requestPermission()
-                    } catch (e: Exception)
-                    {
-                        return@OnCommitContentListener false
-                    }
+                    return@setOnReceiveContentListener inputContentInfo
                 }
-
-                runBlocking {
-                    launch(Dispatchers.IO) {
-                        val bitmap = getBitmap(inputContentInfo.contentUri)
-
-                        val handler = Handler(Looper.getMainLooper())
-                        handler.post {
-                            insertImageToCursor(bitmap, null, inputContentInfo.contentUri)
-                        }
-                    }
-                }
-
-                true
             }
-        return InputConnectionCompat.createWrapper(ic, outAttrs, callback)
+
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    val bitmap = inputContentInfo.linkUri?.let { getBitmap(it) }
+
+                    val handler = Handler(Looper.getMainLooper())
+                    handler.post {
+                        inputContentInfo.linkUri?.let { insertImageToCursor(bitmap, null, it) }
+                    }
+                }
+            }
+            if(inputContentInfo.linkUri == null) {
+                return@setOnReceiveContentListener inputContentInfo
+            }
+
+            return@setOnReceiveContentListener null
+        }
+//        val callback =
+//            InputConnectionCompat.OnCommitContentListener { inputContentInfo, flags, _ ->
+//                val lacksPermission = (flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION) != 0
+//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && lacksPermission)
+//                {
+//                    try {
+//                        inputContentInfo.requestPermission()
+//                    } catch (e: Exception)
+//                    {
+//                        return@OnCommitContentListener false
+//                    }
+//                }
+//
+//                runBlocking {
+//                    launch(Dispatchers.IO) {
+//                        val bitmap = getBitmap(inputContentInfo.contentUri)
+//
+//                        val handler = Handler(Looper.getMainLooper())
+//                        handler.post {
+//                            insertImageToCursor(bitmap, null, inputContentInfo.contentUri)
+//                        }
+//                    }
+//                }
+//
+//                true
+//            }
+//        return InputConnectionCompat.createWrapper(ic, outAttrs, callback)
+        return InputConnectionCompat.createWrapper(this, ic, outAttrs)
     }
 }

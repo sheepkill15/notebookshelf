@@ -2,7 +2,6 @@ package com.sanddunes.notebookshelf.activities
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
@@ -153,58 +152,93 @@ class EditBookActivity : AppCompatActivity() {
 
     private fun setUpActivity(data: BookData) {
 
-        val images = arrayListOf<Bitmap>()
-        val startIndices = arrayListOf<Int>()
-        val uris = arrayListOf<Uri>()
+//        val images = arrayListOf<Bitmap>()
+//        val startIndices = arrayListOf<Int>()
+//        val uris = arrayListOf<Uri>()
 
-        var content: String = data.content
-
-        for(i in content.indices step LineTextInputEditText.TOKEN.length ) {
-            if(i >= content.length) break
-            if (content[i] in LineTextInputEditText.TOKEN) {
-                val start = i - LineTextInputEditText.TOKEN.indexOf(content[i])
-
-                val end = content.indexOfAny(
-                    charArrayOf(' ', '\n', '\r', '\t'),
-                    start + LineTextInputEditText.TOKEN.length
-                )
+        val content = data.content
+        titleInput.text = SpannableStringBuilder(data.title)
+        contentInput.text = SpannableStringBuilder(content)
+        Thread {
+            var start = content.indexOf(LineTextInputEditText.TOKEN)
+            while(start != -1) {
+                val end = content.indexOfAny(charArrayOf(' ', '\n', '\r', '\t'), start)
                 try {
-                    val uri = Uri.parse(content.substring(start + LineTextInputEditText.TOKEN.length, end))
-                    val loaded = LineTextInputEditText.getBitmap(uri)
-                    if (loaded != null) {
-                        images.add(loaded)
-                        startIndices.add(start)
-                        uris.add(uri)
-                    }
-                    else {
-                        content = content.removeRange(start, end + 2)
-                    }
+                        val uri = Uri.parse(content.substring(start + LineTextInputEditText.TOKEN.length, end))
+                        val loaded = LineTextInputEditText.getBitmap(uri)
+                        if (loaded != null) {
+//                            images.add(loaded)
+//                            startIndices.add(start)
+//                            uris.add(uri)
+                            val locStart = start
+                            Handler(applicationContext.mainLooper).post {
+                                contentInput.insertImageToCursor(loaded, locStart, uri, false)
+                            }
+                        }
+                        else {
+                            val locStart = start
+                            Handler(applicationContext.mainLooper).post {
+                                contentInput.text?.removeRange(locStart..end)
+                            }
+                        }
                 } catch (ex: Exception) {
                     ex.message?.let { Log.e("URI", it) }
                 }
+                start = content.indexOf(LineTextInputEditText.TOKEN, start + LineTextInputEditText.TOKEN.length)
             }
-        }
+//        for(i in content.indices step LineTextInputEditText.TOKEN.length ) {
+//            if(i >= content.length) break
+//            if (content[i] in LineTextInputEditText.TOKEN) {
+//                val start = i - LineTextInputEditText.TOKEN.indexOf(content[i])
+//
+//                val end = content.indexOfAny(
+//                    charArrayOf(' ', '\n', '\r', '\t'),
+//                    start + LineTextInputEditText.TOKEN.length
+//                )
+//                try {
+//                        val uri = Uri.parse(content.substring(start + LineTextInputEditText.TOKEN.length, end))
+//                        val loaded = LineTextInputEditText.getBitmap(uri)
+//                        if (loaded != null) {
+////                            images.add(loaded)
+////                            startIndices.add(start)
+////                            uris.add(uri)
+//
+//                            Handler(applicationContext.mainLooper).post {
+//                                contentInput.insertImageToCursor(loaded, start, uri, false);
+//                            }
+//                        }
+//                        else {
+//                            content = content.removeRange(start, end + 2)
+//                        }
+//                } catch (ex: Exception) {
+//                    ex.message?.let { Log.e("URI", it) }
+//                }
+//            }
+//            }
+            Handler(applicationContext.mainLooper).post {
+//
+//                for(i in images.indices)
+//                {
+//                    contentInput.insertImageToCursor(images[i], startIndices[i], uris[i], false)
+//                }
 
-        titleInput.text = SpannableStringBuilder(data.title)
-        contentInput.text = SpannableStringBuilder(content)
 
-        for(i in images.indices)
-        {
-            contentInput.insertImageToCursor(images[i], startIndices[i], uris[i], false)
-        }
-
-        titleInput.doAfterTextChanged {
-            if (!edited && initialized) {
-                edited = true
-                updateSaveButton()
+                    titleInput.doAfterTextChanged {
+                        if (!edited && initialized) {
+                            edited = true
+                            updateSaveButton()
+                        }
+                    }
+                    contentInput.doAfterTextChanged {
+                        if (!edited && initialized) {
+                            edited = true
+                            updateSaveButton()
+                        }
+                    }
             }
-        }
-        contentInput.doAfterTextChanged {
-            if (!edited && initialized) {
-                edited = true
-                updateSaveButton()
-            }
-        }
+        }.start()
+
+
     }
 
     private fun save() {
