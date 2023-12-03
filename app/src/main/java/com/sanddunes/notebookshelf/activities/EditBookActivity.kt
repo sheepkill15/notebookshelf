@@ -114,7 +114,9 @@ class EditBookActivity : AppCompatActivity() {
         outState.putSerializable(INSTANCE_NOTEDATA, BookData(null, titleInput.text.toString(), contentInput.text.toString(), ""))
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        super.onBackPressed()
         exit()
     }
 

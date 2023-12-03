@@ -120,7 +120,7 @@ class LineTextInputEditText(passedContext: Context, attrs: AttributeSet) : TextI
 
         const val TOKEN = "@$"
     }
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
 
         val newLineHeight = lineHeight
         var count = height / newLineHeight
